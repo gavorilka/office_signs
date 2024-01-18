@@ -31,3 +31,15 @@
 // Utilities
 @import "bootstrap/scss/utilities/api";
 
+body {
+  font: 1.5rem/1.5 var(--bs-font-sans-serif);
+}
+h1 {
+  font-size: calc(3rem + 1.5vw)
+}
+h2 {
+  font-size: calc(2rem + 1.5vw)
+}
+h3 {
+  font-size: calc(1.5rem + 1.5vw);
+}
