@@ -42,10 +42,10 @@ class RenderFunction {
         this.#currentTime = new Date().toLocaleTimeString('en-RU', {timeZone: 'Europe/Moscow', hour12: false})
         this.#building = this.#chooseBuilding()
         this.#room = this.#building ? this.#url.searchParams.get(this.#building): undefined
-        this.#serverQuery().then(()=>{
+        this.#serverQuery().then(()=> {
+            this.renderDate()
             this.renderCabinet()
             this.renderRadioGroup()
-            console.log(this.#data)
         })
     }
     #chooseBuilding (){
@@ -53,7 +53,7 @@ class RenderFunction {
     }
     async #serverQuery(){
         try{
-            const response = await fetch(`http://localhost:5051?building=${this.#building}&room=${this.#room}`)
+            const response = await fetch(`${import.meta.env.VITE_API_SERVER}?building=${this.#building}&room=${this.#room}`)
             const data = await response.json()
             const result = data.response
             if(result.state == 200) {
@@ -95,12 +95,20 @@ class RenderFunction {
         }
 
     }
+
+    converMonthToName (index) {
+        const monthName = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря']
+        return monthName[index]
+    }
+
     radioHandler(event){
         const radio = event.target
         // console.log(event, radio)
         this.#radioCheckedDate = radio.dataset.day
         this.renderTime()
         this.#currentTime = new Date().toLocaleTimeString('en-RU', {timeZone: 'Europe/Moscow', hour12: false})
+        this.#currentDate = new Date(`${this.#radioCheckedDate}T${this.#currentTime}`)
+        this.renderDate()
     }
 
     clickTimeHandler(event){
@@ -116,6 +124,11 @@ class RenderFunction {
         this.renderBody(Number(chooseBtn.dataset.index))
 
     }
+
+    renderDate () {
+        document.querySelectorAll('.choose-date').textContent = `${this.converMonthToName(this.#currentDate.getDate())} ${this.this.#currentDate.getDate()} ${this.#currentDate.getFullYear()} `
+    }
+
     renderRadioGroup() {
         const radioGroup = document.querySelector('.choose-day')
         this.#daysOfWeek.forEach((day,i)=>{
@@ -202,7 +215,6 @@ class RenderFunction {
     }
 
 }
-
 const renderFunction = new RenderFunction()
 
 
