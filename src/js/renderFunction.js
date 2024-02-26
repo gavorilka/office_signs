@@ -1,4 +1,4 @@
-"use strict";
+"use strict"
 
 class RenderFunction {
     #url
@@ -68,22 +68,22 @@ class RenderFunction {
         }
     }
     #getCurrentWeekDate(dayIndex) {
-        const currentDate = new Date(this.#currentDate); // Создаем копию текущей даты
-        const currentDay = currentDate.getDay();
-        const delta = currentDay - dayIndex;
-        currentDate.setDate(currentDate.getDate() - delta);
+        const currentDate = new Date(this.#currentDate) // Создаем копию текущей даты
+        const currentDay = currentDate.getDay()
+        const delta = currentDay - dayIndex
+        currentDate.setDate(currentDate.getDate() - delta)
 
-        const year = currentDate.getFullYear();
-        let month = currentDate.getMonth() + 1;
+        const year = currentDate.getFullYear()
+        let month = currentDate.getMonth() + 1
         if (month < 10) {
-            month = '0' + month;
+            month = '0' + month
         }
-        let day = currentDate.getDate();
+        let day = currentDate.getDate()
         if (day < 10) {
-            day = '0' + day;
+            day = '0' + day
         }
 
-        return `${year}-${month}-${day}`;
+        return `${year}-${month}-${day}`
     }
     convertTimeToHHMM(time) {
         if(time){
@@ -103,7 +103,6 @@ class RenderFunction {
 
     radioHandler(event){
         const radio = event.target
-        // console.log(event, radio)
         this.#radioCheckedDate = radio.dataset.day
         this.renderTime()
         this.#currentTime = new Date().toLocaleTimeString('en-RU', {timeZone: 'Europe/Moscow', hour12: false})
@@ -135,14 +134,14 @@ class RenderFunction {
         this.#daysOfWeek.forEach((day,i)=>{
             const dayDate = this.#getCurrentWeekDate(i + 1)
 
-            const radioInput = document.createElement('input');
+            const radioInput = document.createElement('input')
             radioInput.setAttribute('type', 'radio')
             radioInput.classList.add('btn-check')
             radioInput.setAttribute('name', 'day')
             radioInput.setAttribute('data-day', dayDate)
             radioInput.setAttribute('data-key', day.key)
             radioInput.setAttribute('title', day.name)
-            radioInput.setAttribute('id', `day${day.key}`);
+            radioInput.setAttribute('id', `day${day.key}`)
             radioInput.setAttribute('autocomplete', 'off')
             if (day.key === this.#currentNumberDay) { // По умолчанию выбран текущий день недели
                 radioInput.setAttribute('checked', true)
@@ -177,8 +176,8 @@ class RenderFunction {
             const button = document.createElement('button')
             button.setAttribute('type', 'button')
             button.classList.add('list-group-item', 'list-group-item-action','choose-time-item')
-            const ringStart = item.ring_start;
-            const ringEnd = item.ring_end;
+            const ringStart = item.ring_start
+            const ringEnd = item.ring_end
             button.setAttribute('data-start', ringStart)
             button.setAttribute('data-end', ringEnd)
             button.setAttribute('data-index', index)
@@ -187,7 +186,7 @@ class RenderFunction {
             const current = new Date(`${this.#radioCheckedDate}T${this.#currentTime}`)
 
             button.textContent = `${this.convertTimeToHHMM(ringStart)} - ${this.convertTimeToHHMM(ringEnd)}`
-            // console.log(current)
+
             if (current >= start && current <= end) {
                 button.classList.add('active')
                 button.setAttribute("aria-current","true")
@@ -197,21 +196,84 @@ class RenderFunction {
             timeGroup.append(button)
         })
     }
-    renderBody(index){
-        const currentLesson = this.#data.days[this.#radioCheckedDate].items[index]
-        console.log(currentLesson)
-        document.querySelector('.current-lesson').textContent = `Урок №${currentLesson.num} (${this.convertTimeToHHMM(currentLesson.ring_start)}-${this.convertTimeToHHMM(currentLesson.ring_end)})`
-        document.querySelector('.current-lesson-lesson').textContent = `${currentLesson.lesson}`
-        document.querySelector('.current-lesson-teacher').textContent = `Учитель: ${currentLesson.teacher}`
-        document.querySelector('.current-lesson-class').textContent = `Класс на уроке: ${currentLesson.class}`
-        if(this.#data.days[this.#radioCheckedDate].items[index + 1]){
-            const nextLesson = this.#data.days[this.#radioCheckedDate].items[index + 1]
-            document.querySelector('.next-lesson').textContent = ` Следующий урок №${nextLesson.num} (${this.convertTimeToHHMM(nextLesson.ring_start)}-${this.convertTimeToHHMM(nextLesson.ring_end)})`
-            document.querySelector('.next-lesson-lesson').textContent = `${nextLesson.lesson}`
-            document.querySelector('.next-lesson-teacher').textContent = `Учитель: ${nextLesson.teacher}`
-            document.querySelector('.next-lesson-class').textContent = `${nextLesson.class} класс`
-        }
+    // Функция для рендеринга разметки текущего урока
+    renderCurrentLesson(currentLessonData) {
 
+        const cardHeader = document.createElement('div')
+        cardHeader.classList.add('card-header', 'current-lesson')
+
+        const cardTitle = document.createElement('h2')
+        cardTitle.classList.add('card-title', 'mb-4')
+        cardHeader.appendChild(cardTitle)
+
+        const cardText = document.createElement('div')
+        cardText.classList.add('card-text')
+
+        const lessonTitle = document.createElement('h3')
+        lessonTitle.classList.add('lesson')
+        cardText.appendChild(lessonTitle)
+
+        const teacherName = document.createElement('h4')
+        teacherName.classList.add('teacher')
+        cardText.appendChild(teacherName)
+
+        const lessonClass = document.createElement('p')
+        lessonClass.classList.add('class')
+        cardText.appendChild(lessonClass)
+
+        cardHeader.appendChild(cardText)
+
+        // Добавление данных урока в соответствующие элементы
+        cardTitle.textContent = `Урок №${currentLessonData.num} (${this.convertTimeToHHMM(currentLessonData.ring_start)}-${this.convertTimeToHHMM(currentLessonData.ring_end)})`
+        lessonTitle.textContent = `${currentLessonData.lesson}`
+        teacherName.textContent = `Учитель: ${currentLessonData.teacher}`
+        lessonClass.textContent = `Класс на уроке: ${currentLessonData.class}`
+
+        return cardHeader
+    }
+
+    renderNextLesson(nextLessonData) {
+        const nextLessonCard = document.createElement('div')
+        nextLessonCard.classList.add('card-body', 'fw-semibold', 'flex-column', 'd-flex', 'align-items-end', 'next-lesson')
+
+        const cardTitle = document.createElement('h4')
+        cardTitle.classList.add('card-title', 'mb-5', 'align-self-center')
+        nextLessonCard.appendChild(cardTitle)
+
+        const cardText = document.createElement('div')
+        cardText.classList.add('card-text')
+
+        const nextLessonTitle = document.createElement('p')
+        nextLessonTitle.classList.add('lesson')
+        cardText.appendChild(nextLessonTitle)
+
+        const nextTeacherName = document.createElement('p')
+        nextTeacherName.classList.add('teacher')
+        cardText.appendChild(nextTeacherName)
+
+        const nextLessonClass = document.createElement('p')
+        nextLessonClass.classList.add('class')
+        cardText.appendChild(nextLessonClass)
+
+        nextLessonCard.appendChild(cardText)
+
+        // Добавление данных следующего урока в соответствующие элементы
+        cardTitle.textContent = ` Следующий урок №${nextLessonData.num} (${this.convertTimeToHHMM(nextLessonData.ring_start)}-${this.convertTimeToHHMM(nextLessonData.ring_end)})`
+        nextLessonTitle.textContent = `${nextLessonData.lesson}`
+        nextTeacherName.textContent = `Учитель: ${nextLessonData.teacher}`
+        nextLessonClass.textContent = `${nextLessonData.class} класс`
+
+        return nextLessonCard
+    }
+    renderBody(index){
+        const lessonsCard = document.querySelector('.lessons-card')
+        lessonsCard.innerHTML = ''
+        if(this.#data.days[this.#radioCheckedDate].items[index]){
+            lessonsCard.append(this.renderCurrentLesson(this.#data.days[this.#radioCheckedDate].items[index]))
+        }
+        if(this.#data.days[this.#radioCheckedDate].items[index + 1]){
+            lessonsCard.appendChild(this.renderNextLesson(this.#data.days[this.#radioCheckedDate].items[index + 1]))
+        }
     }
 
 }
