@@ -29,48 +29,34 @@
             <h5 class="text-center mb-4">
                 15 января 2023
             </h5>
-            <div class="btn-group mb-4" role="group" aria-label="Basic radio toggle button group">
-                <input type="radio" class="btn-check" name="day" id="day1" autocomplete="off">
-                <label class="btn btn-outline-primary" for="day1">Пн</label>
-                <input type="radio" class="btn-check" name="day" id="day2" autocomplete="off" checked>
-                <label class="btn btn-outline-primary" for="day2">Вт</label>
-                <input type="radio" class="btn-check" name="day" id="day3" autocomplete="off">
-                <label class="btn btn-outline-primary" for="day3">Ср</label>
-                <input type="radio" class="btn-check" name="day" id="day4" autocomplete="off">
-                <label class="btn btn-outline-primary" for="day4">Чт</label>
-                <input type="radio" class="btn-check" name="day" id="day5" autocomplete="off">
-                <label class="btn btn-outline-primary" for="day5">Пт</label>
-                <input type="radio" class="btn-check" name="day" id="day6" autocomplete="off">
-                <label class="btn btn-outline-primary" for="day6">Сб</label>
-                <input type="radio" class="btn-check" name="day" id="day7" autocomplete="off" disabled>
-                <label class="btn btn-outline-primary" for="day7">Вс</label>
+            <div class="btn-group mb-4 choose-day" role="group" aria-label="Выбор дня">
             </div>
-            <div class="list-group list-group-numbered">
-                <button type="button" class="list-group-item list-group-item-action">8:30 - 9:10</button>
-                <button type="button" class="list-group-item list-group-item-action active" aria-current="true">8:30 - 9:10</button>
-                <button type="button" class="list-group-item list-group-item-action">8:30 - 9:10</button>
-                <button type="button" class="list-group-item list-group-item-action">8:30 - 9:10</button>
-                <button type="button" class="list-group-item list-group-item-action">8:30 - 9:10</button>
-                <button type="button" class="list-group-item list-group-item-action">8:30 - 9:10</button>
-                <button type="button" class="list-group-item list-group-item-action">8:30 - 9:10</button>
+            <div class="choose-time list-group list-group-numbered">
+<!--                <button type="button" class="list-group-item list-group-item-action">8:30 - 9:10</button>-->
+<!--                <button type="button" class="list-group-item list-group-item-action active" aria-current="true">8:30 - 9:10</button>-->
+<!--                <button type="button" class="list-group-item list-group-item-action">8:30 - 9:10</button>-->
+<!--                <button type="button" class="list-group-item list-group-item-action">8:30 - 9:10</button>-->
+<!--                <button type="button" class="list-group-item list-group-item-action">8:30 - 9:10</button>-->
+<!--                <button type="button" class="list-group-item list-group-item-action">8:30 - 9:10</button>-->
+<!--                <button type="button" class="list-group-item list-group-item-action">8:30 - 9:10</button>-->
             </div>
         </div>
         <div class='col-sm-8'>
             <div class="card">
                 <div class="card-header">
-                    <h2 class="card-title mb-4 time">Урок №4 (11:20-12:00)</h2>
+                    <h2 class="card-title mb-4 time current-lesson">Урок №4 (11:20-12:00)</h2>
                     <div class="card-text">
-                        <h3>Геометрия</h3>
-                        <h4>Учитель: Чернаускас Светлана Владимировна</h4>
-                        <p>Класс на уроке: 9Б</p>
+                        <h3 class="current-lesson-lesson">Геометрия</h3>
+                        <h4 class="current-lesson-teacher">Учитель: Чернаускас Светлана Владимировна</h4>
+                        <p class="current-lesson-class">Класс на уроке: 9Б</p>
                     </div>
                 </div>
                 <div class="card-body fw-semibold flex-column d-flex align-items-end">
-                    <h4 class="card-title mb-5 align-self-center">Следующий урок №5 (12:10-12:50)</h4>
+                    <h4 class="card-title mb-5 align-self-center next-lesson">Следующий урок №5 (12:10-12:50)</h4>
                     <div class="card-text">
-                        <p>Основы безопасности жизнедеятельности</p>
-                        <p>Учитель: Пчёлкин Константин Сергеевич</p>
-                        <p>7А класс</p>
+                        <p class="next-lesson-lesson">Основы безопасности жизнедеятельности</p>
+                        <p class="next-lesson-teacher">Учитель: Пчёлкин Константин Сергеевич</p>
+                        <p class="next-lesson-class">7А класс</p>
                     </div>
                 </div>
             </div>
