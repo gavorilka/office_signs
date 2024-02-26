@@ -96,7 +96,7 @@ class RenderFunction {
 
     }
 
-    converMonthToName (index) {
+    convertMonthToName (index) {
         const monthName = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря']
         return monthName[index]
     }
@@ -126,7 +126,8 @@ class RenderFunction {
     }
 
     renderDate () {
-        document.querySelectorAll('.choose-date').textContent = `${this.#currentDate.getDate()} ${this.converMonthToName(this.#currentDate.getMonth())} ${this.#currentDate.getFullYear()} `
+
+        document.querySelector('.choose-date').textContent = `${this.#currentDate.getDate()} ${this.convertMonthToName(this.#currentDate.getMonth())} ${this.#currentDate.getFullYear()} `
     }
 
     renderRadioGroup() {
@@ -170,7 +171,6 @@ class RenderFunction {
     }
 
     renderTime(){
-        console.log(this.#radioCheckedDate, this.#data.days[this.#radioCheckedDate])
         const timeGroup = document.querySelector('.choose-time')
         timeGroup.innerHTML = ''
         this.#data.days[this.#radioCheckedDate].items.forEach((item, index)=> {
