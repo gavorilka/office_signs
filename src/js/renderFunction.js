@@ -95,7 +95,27 @@ class RenderFunction {
         }
 
     }
+    radioHandler(event){
+        const radio = event.target
+        // console.log(event, radio)
+        this.#radioCheckedDate = radio.dataset.day
+        this.renderTime()
+        this.#currentTime = new Date().toLocaleTimeString('en-RU', {timeZone: 'Europe/Moscow', hour12: false})
+    }
 
+    clickTimeHandler(event){
+        const chooseBtn = event.target
+        document.querySelectorAll('.choose-time-item').forEach((timeItem) => {
+            if (timeItem.classList.contains('active') && timeItem.hasAttribute('aria-current')) {
+                timeItem.classList.remove('active')
+                timeItem.removeAttribute("aria-current")
+            }
+        })
+        chooseBtn.classList.add('active')
+        chooseBtn.setAttribute("aria-current","true")
+        this.renderBody(Number(chooseBtn.dataset.index))
+
+    }
     renderRadioGroup() {
         const radioGroup = document.querySelector('.choose-day')
         this.#daysOfWeek.forEach((day,i)=>{
@@ -117,7 +137,7 @@ class RenderFunction {
             if (day.key === 0) { // Воскресенье делаем неактивным
                 radioInput.setAttribute('disabled', true)
             }
-            radioInput.addEventListener("change", this.#radioHandler.bind(this))
+            radioInput.addEventListener("change", this.radioHandler.bind(this))
 
             const label = document.createElement('label')
             label.classList.add('btn', 'btn-outline-primary')
@@ -130,13 +150,7 @@ class RenderFunction {
         })
         this.renderTime()
     }
-    #radioHandler(event){
-        const radio = event.target
-        // console.log(event, radio)
-        this.#radioCheckedDate = radio.dataset.day
-        this.renderTime()
-        this.#currentTime = new Date().toLocaleTimeString('en-RU', {timeZone: 'Europe/Moscow', hour12: false})
-    }
+
 
     renderCabinet() {
         document.querySelector('.cabinet').append(`Кабинет ${this.#room}`)
@@ -149,11 +163,12 @@ class RenderFunction {
         this.#data.days[this.#radioCheckedDate].items.forEach((item, index)=> {
             const button = document.createElement('button')
             button.setAttribute('type', 'button')
-            button.classList.add('list-group-item', 'list-group-item-action')
+            button.classList.add('list-group-item', 'list-group-item-action','choose-time-item')
             const ringStart = item.ring_start;
             const ringEnd = item.ring_end;
             button.setAttribute('data-start', ringStart)
             button.setAttribute('data-end', ringEnd)
+            button.setAttribute('data-index', index)
             const start = new Date(`${this.#radioCheckedDate}T${ringStart}`)
             const end = new Date(`${this.#radioCheckedDate}T${ringEnd}`)
             const current = new Date(`${this.#radioCheckedDate}T${this.#currentTime}`)
@@ -163,25 +178,27 @@ class RenderFunction {
             if (current >= start && current <= end) {
                 button.classList.add('active')
                 button.setAttribute("aria-current","true")
-                this.renderBody(index)
+                this.renderBody(Number(index))
             }
-
+            button.addEventListener("click", this.clickTimeHandler.bind(this))
             timeGroup.append(button)
         })
     }
     renderBody(index){
         const currentLesson = this.#data.days[this.#radioCheckedDate].items[index]
-        const nextLesson = this.#data.days[this.#radioCheckedDate].items[index + 1]
         console.log(currentLesson)
         document.querySelector('.current-lesson').textContent = `Урок №${currentLesson.num} (${this.convertTimeToHHMM(currentLesson.ring_start)}-${this.convertTimeToHHMM(currentLesson.ring_end)})`
         document.querySelector('.current-lesson-lesson').textContent = `${currentLesson.lesson}`
         document.querySelector('.current-lesson-teacher').textContent = `Учитель: ${currentLesson.teacher}`
         document.querySelector('.current-lesson-class').textContent = `Класс на уроке: ${currentLesson.class}`
+        if(this.#data.days[this.#radioCheckedDate].items[index + 1]){
+            const nextLesson = this.#data.days[this.#radioCheckedDate].items[index + 1]
+            document.querySelector('.next-lesson').textContent = ` Следующий урок №${nextLesson.num} (${this.convertTimeToHHMM(nextLesson.ring_start)}-${this.convertTimeToHHMM(nextLesson.ring_end)})`
+            document.querySelector('.next-lesson-lesson').textContent = `${nextLesson.lesson}`
+            document.querySelector('.next-lesson-teacher').textContent = `Учитель: ${nextLesson.teacher}`
+            document.querySelector('.next-lesson-class').textContent = `${nextLesson.class} класс`
+        }
 
-        document.querySelector('.next-lesson').textContent = ` Следующий урок №${nextLesson.num} (${this.convertTimeToHHMM(nextLesson.ring_start)}-${this.convertTimeToHHMM(nextLesson.ring_end)})`
-        document.querySelector('.next-lesson-lesson').textContent = `${nextLesson.lesson}`
-        document.querySelector('.next-lesson-teacher').textContent = `Учитель: ${nextLesson.teacher}`
-        document.querySelector('.next-lesson-class').textContent = `${nextLesson.class} класс`
     }
 
 }
