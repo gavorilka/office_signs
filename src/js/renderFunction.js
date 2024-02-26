@@ -53,7 +53,7 @@ class RenderFunction {
     }
     async #serverQuery(){
         try{
-            const response = await fetch(`${import.meta.env.VITE_API_SERVER}?building=${this.#building}&room=${this.#room}`)
+            const response = await fetch(`${import.meta.env.VITE_API_SERVER}/?building=${this.#building}&room=${this.#room}`)
             const data = await response.json()
             const result = data.response
             if(result.state == 200) {
@@ -126,7 +126,7 @@ class RenderFunction {
     }
 
     renderDate () {
-        document.querySelectorAll('.choose-date').textContent = `${this.converMonthToName(this.#currentDate.getDate())} ${this.this.#currentDate.getDate()} ${this.#currentDate.getFullYear()} `
+        document.querySelectorAll('.choose-date').textContent = `${this.#currentDate.getDate()} ${this.converMonthToName(this.#currentDate.getMonth())} ${this.#currentDate.getFullYear()} `
     }
 
     renderRadioGroup() {
