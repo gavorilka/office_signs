@@ -172,7 +172,7 @@ class RenderFunction {
     renderTime(){
         const timeGroup = document.querySelector('.choose-time')
         timeGroup.innerHTML = ''
-        this.#data.days[this.#radioCheckedDate].items.forEach((item, index)=> {
+        for (const [index, item] of Object.entries(this.#data.days[this.#radioCheckedDate].items)) {
             const button = document.createElement('button')
             button.setAttribute('type', 'button')
             button.classList.add('list-group-item', 'list-group-item-action','choose-time-item')
@@ -194,7 +194,7 @@ class RenderFunction {
             }
             button.addEventListener("click", this.clickTimeHandler.bind(this))
             timeGroup.append(button)
-        })
+        }
     }
     // Функция для рендеринга разметки текущего урока
     renderCurrentLesson(currentLessonData) {
