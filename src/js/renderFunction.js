@@ -9,7 +9,6 @@ class RenderFunction {
     #currentTime
     #data
     #radioCheckedDate
-    #chooseTime
     #daysOfWeek = [
         { shortName: "Пн", name: "Понедельник", key: 1 },
         { shortName: "Вт", name: "Вторник", key: 2 },
@@ -18,22 +17,6 @@ class RenderFunction {
         { shortName: "Пт", name: "Пятница", key: 5 },
         { shortName: "Сб", name: "Суббота", key: 6 },
         { shortName: "Вс", name: "Воскресенье", key: 0 }
-    ]
-    #localRings = [
-        { ring_start: "08:00:00", ring_end: "08:40:00" },
-        { ring_start: "08:45:00", ring_end: "09:25:00" },
-        { ring_start: "09:45:00", ring_end: "10:25:00" },
-        { ring_start: "10:30:00", ring_end: "11:10:00" },
-        { ring_start: "11:30:00", ring_end: "11:10:00" },
-        { ring_start: "12:15:00", ring_end: "12:55:00" },
-        { ring_start: "13:15:00", ring_end: "13:55:00" },
-        { ring_start: "14:00:00", ring_end: "14:40:00" },
-        { ring_start: "15:00:00", ring_end: "15:40:00" },
-        { ring_start: "15:50:00", ring_end: "16:30:00" },
-        { ring_start: "16:40:00", ring_end: "17:20:00" },
-        { ring_start: "17:30:00", ring_end: "18:10:00" },
-        { ring_start: "18:20:00", ring_end: "19:00:00" },
-        { ring_start: "19:10:00", ring_end: "19:50:00" },
     ]
      constructor() {
         this.#url = new URL(window.location)
@@ -82,7 +65,6 @@ class RenderFunction {
         if (day < 10) {
             day = '0' + day
         }
-
         return `${year}-${month}-${day}`
     }
     convertTimeToHHMM(time) {
@@ -125,7 +107,6 @@ class RenderFunction {
     }
 
     renderDate () {
-
         document.querySelector('.choose-date').textContent = `${this.#currentDate.getDate()} ${this.convertMonthToName(this.#currentDate.getMonth())} ${this.#currentDate.getFullYear()} `
     }
 
@@ -172,28 +153,63 @@ class RenderFunction {
     renderTime(){
         const timeGroup = document.querySelector('.choose-time')
         timeGroup.innerHTML = ''
-        for (const [index, item] of Object.entries(this.#data.days[this.#radioCheckedDate].items)) {
-            const button = document.createElement('button')
-            button.setAttribute('type', 'button')
-            button.classList.add('list-group-item', 'list-group-item-action','choose-time-item')
-            const ringStart = item.ring_start
-            const ringEnd = item.ring_end
-            button.setAttribute('data-start', ringStart)
-            button.setAttribute('data-end', ringEnd)
-            button.setAttribute('data-index', index)
-            const start = new Date(`${this.#radioCheckedDate}T${ringStart}`)
-            const end = new Date(`${this.#radioCheckedDate}T${ringEnd}`)
-            const current = new Date(`${this.#radioCheckedDate}T${this.#currentTime}`)
+        if(this.#data.days[this.#radioCheckedDate]){
+            const items = Object.entries(this.#data.days[this.#radioCheckedDate].items)
+            if(items.length == 0){
+                //Если массив уроков пуст
+                this.renderEmptyBody()
+            } else {
+                for (let i = 0; i < items.length; i++) {
+                    const [index, item] = items[i]
+                    const button = document.createElement('button')
+                    button.setAttribute('type', 'button')
+                    button.classList.add('list-group-item', 'list-group-item-action','choose-time-item')
 
-            button.textContent = `${this.convertTimeToHHMM(ringStart)} - ${this.convertTimeToHHMM(ringEnd)}`
+                    const ringStart = item.ring_start
+                    const ringEnd = item.ring_end
+                    const ringNextStart = (i < items.length - 1) ? items[i + 1][1].ring_start : null
 
-            if (current >= start && current <= end) {
-                button.classList.add('active')
-                button.setAttribute("aria-current","true")
-                this.renderBody(Number(index))
+                    button.setAttribute('data-start', ringStart)
+                    button.setAttribute('data-end', ringEnd)
+                    button.setAttribute('data-index', index)
+
+                    const start = new Date(`${this.#radioCheckedDate}T${ringStart}`)
+                    const end = new Date(`${this.#radioCheckedDate}T${ringEnd}`)
+                    const nextStart = (ringNextStart) && new Date(`${this.#radioCheckedDate}T${ringNextStart}`)
+                    const current = new Date(`${this.#radioCheckedDate}T${this.#currentTime}`)
+
+                    button.textContent = `${this.convertTimeToHHMM(ringStart)} - ${this.convertTimeToHHMM(ringEnd)}`
+
+                    // console.log(nextStart, nextStart === null, nextStart ==='')
+                    if (current >= start && current <= end) {
+                        button.classList.add('active')
+                        button.setAttribute("aria-current","true")
+                        this.renderBody(Number(index))
+                    } else if (current >= end && current <= nextStart) {
+                        //Если перемена
+                        this.renderBreakBody(Number(index) + 1)
+                    } else if (nextStart === null && current >= end) {
+                        // Если уроки кончены
+                        this.renderEndLessonBody()
+                    } else if(nextStart === '') {
+                        const ringPreviewEnd = (i < items.length - 1) ? items[i - 1][1].ring_end : null
+                        const previewEnd = (ringPreviewEnd) && new Date(`${this.#radioCheckedDate}T${ringPreviewEnd}`)
+                        // console.log(ringPreviewEnd, current >= previewEnd)
+                        if(current >= previewEnd){
+                            //Если уроки без метки времени в журнале
+                            this.renderBreakBody(Number(index))
+                            this.renderNoTime()
+                        }
+
+                    }
+
+                    button.addEventListener("click", this.clickTimeHandler.bind(this))
+                    timeGroup.append(button)
+                }
             }
-            button.addEventListener("click", this.clickTimeHandler.bind(this))
-            timeGroup.append(button)
+        } else {
+            //TODO: если понадобиться сделать подгруздку по дням или подтянуть следующую неделю
+            this.renderEmptyDataBody()
         }
     }
     // Функция для рендеринга разметки текущего урока
@@ -265,6 +281,28 @@ class RenderFunction {
 
         return nextLessonCard
     }
+
+    renderNoTime(){
+        const next = document.querySelector('.next-lesson')
+        const cardText = document.createElement('div')
+        cardText.classList.add('text-center')
+
+        const h3 = document.createElement('h3')
+        h3.textContent = `Будьте внимательны!`
+        cardText.appendChild(h3)
+
+        const p1 = document.createElement('p')
+        p1.textContent = `Время текущего или следующего урока не доступно`
+        cardText.appendChild(p1)
+
+        const p2 = document.createElement('p')
+        p2.textContent = `Следующий урок доступен только в ручном режиме`
+        cardText.appendChild(p2)
+
+        next.append(cardText)
+
+    }
+
     renderBody(index){
         const lessonsCard = document.querySelector('.lessons-card')
         lessonsCard.innerHTML = ''
@@ -275,7 +313,71 @@ class RenderFunction {
             lessonsCard.appendChild(this.renderNextLesson(this.#data.days[this.#radioCheckedDate].items[index + 1]))
         }
     }
+    renderBreakBody(index) {
+        const lessonsCard = document.querySelector('.lessons-card')
+        lessonsCard.innerHTML = ''
+        if(this.#data.days[this.#radioCheckedDate].items[index]){
+            lessonsCard.appendChild(this.renderNextLesson(this.#data.days[this.#radioCheckedDate].items[index]))
+        }
+    }
+    renderEmptyBody() {
+        const lessonsCard = document.querySelector('.lessons-card')
+        lessonsCard.innerHTML = ''
 
+        const card = document.createElement('div')
+        card.classList.add('card-header')
+
+
+        const cardText = document.createElement('div')
+        cardText.classList.add('card-text', 'text-center')
+        card.appendChild(cardText)
+
+        const lessonTitle = document.createElement('h3')
+        lessonTitle.classList.add('lesson')
+        cardText.appendChild(lessonTitle)
+
+        lessonTitle.textContent = `Уроки по журналу не обнаружены`
+
+        lessonsCard.appendChild(card)
+    }
+    renderEndLessonBody() {
+        const lessonsCard = document.querySelector('.lessons-card')
+        lessonsCard.innerHTML = ''
+
+        const card = document.createElement('div')
+        card.classList.add('card-header')
+
+        const cardText = document.createElement('div')
+        cardText.classList.add('card-text', 'text-center')
+        card.appendChild(cardText)
+
+        const lessonTitle = document.createElement('h3')
+        cardText.appendChild(lessonTitle)
+
+        lessonTitle.textContent = `Уроки окончены или не определён временной промежуток`
+
+        lessonsCard.appendChild(card)
+    }
+    renderEmptyDataBody() {
+        const lessonsCard = document.querySelector('.lessons-card')
+        lessonsCard.innerHTML = ''
+
+        const card = document.createElement('div')
+        card.classList.add('card-header')
+
+
+        const cardText = document.createElement('div')
+        cardText.classList.add('card-text', 'text-center')
+        card.appendChild(cardText)
+
+        const lessonTitle = document.createElement('h3')
+        lessonTitle.classList.add('lesson')
+        cardText.appendChild(lessonTitle)
+
+        lessonTitle.textContent = `О! Ужас!!! Данные не обновляются! Если ничего не сломалось, то сегодня воскресенье! Лицей по воскресеньям не работает. Просьба не выводить табличку из спящего режима! Она отдыхает!`
+
+        lessonsCard.appendChild(card)
+    }
 }
 const renderFunction = new RenderFunction()
 
