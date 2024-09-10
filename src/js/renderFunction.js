@@ -192,7 +192,7 @@ class RenderFunction {
                         // Если уроки кончены
                         this.renderEndLessonBody()
                     } else if(nextStart === '') {
-                        const ringPreviewEnd = (i < items.length - 1) ? items[i - 1][1].ring_end : null
+                        const ringPreviewEnd = (i < items.length - 1 && items[i - 1]) ? items[i - 1][1].ring_end : ''
                         const previewEnd = (ringPreviewEnd) && new Date(`${this.#radioCheckedDate}T${ringPreviewEnd}`)
                         // console.log(ringPreviewEnd, current >= previewEnd)
                         if(current >= previewEnd){
