@@ -20,20 +20,26 @@ class RenderFunction {
     ]
      constructor() {
         this.#url = new URL(window.location)
-        this.#currentDate = new Date()
-        this.#currentNumberDay = this.#currentDate.getDay()
-        this.#currentTime = new Date().toLocaleTimeString('en-RU', {timeZone: 'Europe/Moscow', hour12: false})
         this.#building = this.#chooseBuilding()
-        this.#room = this.#building ? this.#url.searchParams.get(this.#building): undefined
-        this.#serverQuery().then(()=> {
-            this.renderDate()
-            this.renderCabinet()
-            this.renderRadioGroup()
-        })
+        if(this.#building){
+            this.#currentDate = new Date()
+            this.#currentNumberDay = this.#currentDate.getDay()
+            this.#currentTime = new Date().toLocaleTimeString('en-RU', {timeZone: 'Europe/Moscow', hour12: false})
+            this.#room = this.#building ? this.#url.searchParams.get(this.#building): undefined
+            this.#serverQuery().then(()=> {
+                this.renderDate()
+                this.renderCabinet()
+                this.renderRadioGroup()
+            })
+        } else {
+            this.renderEmptyUrlParam()
+        }
     }
+
     #chooseBuilding (){
         return this.#url.searchParams.get('high') ?'high' : this.#url.searchParams.get('primary') ? 'primary' : this.#url.searchParams.get('lab') ? 'lab' : undefined
     }
+
     async #serverQuery(){
         try{
             const response = await fetch(`${import.meta.env.VITE_API_SERVER}/?building=${this.#building}&room=${this.#room}`)
@@ -50,6 +56,7 @@ class RenderFunction {
             return this.#data
         }
     }
+
     #getCurrentWeekDate(dayIndex) {
         const currentDate = new Date(this.#currentDate) // Создаем копию текущей даты
         const currentDay = currentDate.getDay()
@@ -67,6 +74,7 @@ class RenderFunction {
         }
         return `${year}-${month}-${day}`
     }
+
     convertTimeToHHMM(time) {
         if(time){
             const [hours, minutes] = time.split(':')
@@ -145,7 +153,6 @@ class RenderFunction {
         this.renderTime()
     }
 
-
     renderCabinet() {
         document.querySelector('.cabinet').append(`Кабинет ${this.#room}`)
     }
@@ -153,6 +160,10 @@ class RenderFunction {
     renderTime(){
         const timeGroup = document.querySelector('.choose-time')
         timeGroup.innerHTML = ''
+        if(!this.#data){
+            console.log('нет даты')
+            return this.renderEmptyDataBody()
+        }
         if(this.#data.days[this.#radioCheckedDate]){
             const items = Object.entries(this.#data.days[this.#radioCheckedDate].items)
             if(items.length == 0){
@@ -313,6 +324,7 @@ class RenderFunction {
             lessonsCard.appendChild(this.renderNextLesson(this.#data.days[this.#radioCheckedDate].items[index + 1]))
         }
     }
+
     renderBreakBody(index) {
         const lessonsCard = document.querySelector('.lessons-card')
         lessonsCard.innerHTML = ''
@@ -320,6 +332,7 @@ class RenderFunction {
             lessonsCard.appendChild(this.renderNextLesson(this.#data.days[this.#radioCheckedDate].items[index]))
         }
     }
+
     renderEmptyBody() {
         const lessonsCard = document.querySelector('.lessons-card')
         lessonsCard.innerHTML = ''
@@ -340,6 +353,7 @@ class RenderFunction {
 
         lessonsCard.appendChild(card)
     }
+
     renderEndLessonBody() {
         const lessonsCard = document.querySelector('.lessons-card')
         lessonsCard.innerHTML = ''
@@ -358,6 +372,7 @@ class RenderFunction {
 
         lessonsCard.appendChild(card)
     }
+
     renderEmptyDataBody() {
         const lessonsCard = document.querySelector('.lessons-card')
         lessonsCard.innerHTML = ''
@@ -374,9 +389,47 @@ class RenderFunction {
         lessonTitle.classList.add('lesson')
         cardText.appendChild(lessonTitle)
 
-        lessonTitle.textContent = `О! Ужас!!! Данные не обновляются! Если ничего не сломалось, то сегодня воскресенье! Лицей по воскресеньям не работает. Просьба не выводить табличку из спящего режима! Она отдыхает!`
+        lessonTitle.textContent = `О! Ужас!!! Данные не обновляются по кабинету или их НЕТ! Если ничего не сломалось, то сегодня воскресенье! Лицей по воскресеньям не работает. Просьба не выводить табличку из спящего режима! Она отдыхает!`
 
         lessonsCard.appendChild(card)
+    }
+
+    renderEmptyUrlParam() {
+        const lessonsCard = document.querySelector('.lessons-card')
+        lessonsCard.innerHTML = ''
+
+        const chooseDate = document.querySelector('.choose-date')
+        const cabinet = document.querySelector('.cabinet')
+
+        const card = document.createElement('div')
+        card.classList.add('card-header')
+        lessonsCard.appendChild(card)
+
+
+        const cardText = document.createElement('div')
+        cardText.classList.add('card-text', 'text-center')
+        card.appendChild(cardText)
+
+        const lessonTitle = document.createElement('h3')
+        lessonTitle.classList.add('lesson')
+        cardText.appendChild(lessonTitle)
+
+        const p1 = document.createElement('p')
+        p1.classList.add('lesson')
+        cardText.appendChild(p1)
+
+        const p2 = document.createElement('p')
+        cardText.appendChild(p2)
+
+        const p3 = document.createElement('p')
+        cardText.appendChild(p3)
+
+        lessonTitle.textContent = `Укажите верно гет параметры`
+        p1.textContent =`high={cabinetNumber} - Старшая школа`
+        p2.textContent =`lab={cabinetNumber} - Лабораторный корпус`
+        p3.textContent =`primary={cabinetNumber} - Начальная школа`
+        chooseDate.textContent = `недоступно`
+        cabinet.textContent =`Кабинет не найден`
     }
 }
 const renderFunction = new RenderFunction()
