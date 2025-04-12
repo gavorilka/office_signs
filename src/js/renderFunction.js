@@ -179,6 +179,7 @@ class RenderFunction {
                     const ringStart = item.ring_start
                     const ringEnd = item.ring_end
                     const ringNextStart = (i < items.length - 1) ? items[i + 1][1].ring_start : null
+                    const ringPrevEnd = (i !== 0)? items[i -1][1].ring_end : null
 
                     button.setAttribute('data-start', ringStart)
                     button.setAttribute('data-end', ringEnd)
@@ -188,11 +189,16 @@ class RenderFunction {
                     const end = new Date(`${this.#radioCheckedDate}T${ringEnd}`)
                     const nextStart = (ringNextStart) && new Date(`${this.#radioCheckedDate}T${ringNextStart}`)
                     const current = new Date(`${this.#radioCheckedDate}T${this.#currentTime}`)
+                    //const prevEnd = (ringPrevEnd) && new Date(`${this.#radioCheckedDate}T${ringPrevEnd}`)
+
 
                     button.textContent = `${this.convertTimeToHHMM(ringStart)} - ${this.convertTimeToHHMM(ringEnd)}`
-
-                    // console.log(nextStart, nextStart === null, nextStart ==='')
-                    if (current >= start && current <= end) {
+                    //console.log(nextStart, nextStart === null, nextStart ==='')
+                    if (current < start && ringPrevEnd === null) {
+                        //Если уроки не начались
+                        console.log('уроки не начались')
+                        this.renderBreakBody(0)
+                    } else if (current >= start && current <= end) {
                         button.classList.add('active')
                         button.setAttribute("aria-current","true")
                         this.renderBody(Number(index))
@@ -211,7 +217,6 @@ class RenderFunction {
                             this.renderBreakBody(Number(index))
                             this.renderNoTime()
                         }
-
                     }
 
                     button.addEventListener("click", this.clickTimeHandler.bind(this))
