@@ -1,35 +1,35 @@
 // Include functions first
-@use "bootstrap/scss/functions" as *;
+@import "bootstrap/scss/functions";
 
 // Required
-@use "bootstrap/scss/variables" as *;
-@use "bootstrap/scss/variables-dark" as *;
-@use "bootstrap/scss/maps" as *;
-@use "bootstrap/scss/mixins" as *;
-@use "bootstrap/scss/utilities" as *;
-@use "bootstrap/scss/root" as *;
-@use "bootstrap/scss/reboot" as *;
+@import "bootstrap/scss/variables";
+@import "bootstrap/scss/variables-dark";
+@import "bootstrap/scss/maps";
+@import "bootstrap/scss/mixins";
+@import "bootstrap/scss/utilities";
+@import "bootstrap/scss/root";
+@import "bootstrap/scss/reboot";
 
 //Var
-@use "bootstrap/scss/type" as *;
-@use "bootstrap/scss/images" as *;
-@use "bootstrap/scss/containers" as *;
-@use "bootstrap/scss/grid" as *;
-@use "bootstrap/scss/forms" as *;
-@use "bootstrap/scss/buttons" as *;
-@use "bootstrap/scss/transitions" as *;
-@use "bootstrap/scss/button-group" as *;
-@use "bootstrap/scss/card" as *;
-@use "bootstrap/scss/list-group" as *;
-@use "bootstrap/scss/modal" as *; // Requires transitions
-@use "bootstrap/scss/popover" as *;
-@use "bootstrap/scss/offcanvas" as *; // Requires transitions
+@import "bootstrap/scss/type";
+@import "bootstrap/scss/images";
+@import "bootstrap/scss/containers";
+@import "bootstrap/scss/grid";
+@import "bootstrap/scss/forms";
+@import "bootstrap/scss/buttons";
+@import "bootstrap/scss/transitions";
+@import "bootstrap/scss/button-group";
+@import "bootstrap/scss/card";
+@import "bootstrap/scss/list-group";
+@import "bootstrap/scss/modal"; // Requires transitions
+@import "bootstrap/scss/popover";
+@import "bootstrap/scss/offcanvas"; // Requires transitions
 
 // Helpers
-// @use "bootstrap/scss/helpers" as *;
+// @import "bootstrap/scss/helpers";
 
 // Utilities
-@use "bootstrap/scss/utilities/api" as *;
+@import "bootstrap/scss/utilities/api";
 
 body {
   font: 1.5rem/1.5 var(--bs-font-sans-serif);
