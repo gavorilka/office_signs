@@ -374,7 +374,7 @@ class RenderFunction {
         lessonTitle.classList.add('lesson')
         cardText.appendChild(lessonTitle)
 
-        lessonTitle.textContent = `Не обнаружены либо не определены в журнале время у предыдущего, текущего, последующего уроков. Обновите журнал или взаимодействуйте в ручном режиме!`
+        lessonTitle.textContent = `Не обнаружены или не определены временные метки для предыдущего, текущего и последующего уроков в журнале. Пожалуйста, обновите журнал или выполните действие переключения урока вручную!`
 
         lessonsCard.appendChild(card)
     }
