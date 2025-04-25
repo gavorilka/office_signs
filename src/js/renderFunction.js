@@ -189,14 +189,14 @@ class RenderFunction {
                     const end = new Date(`${this.#radioCheckedDate}T${ringEnd}`)
                     const nextStart = (ringNextStart) && new Date(`${this.#radioCheckedDate}T${ringNextStart}`)
                     const current = new Date(`${this.#radioCheckedDate}T${this.#currentTime}`)
-                    //const prevEnd = (ringPrevEnd) && new Date(`${this.#radioCheckedDate}T${ringPrevEnd}`)
+                    const prevEnd = (ringPrevEnd) && new Date(`${this.#radioCheckedDate}T${ringPrevEnd}`)
 
 
                     button.textContent = `${this.convertTimeToHHMM(ringStart)} - ${this.convertTimeToHHMM(ringEnd)}`
-                    //console.log(nextStart, nextStart === null, nextStart ==='')
+                    //console.log(ringPrevEnd, prevEnd)
                     if (current < start && ringPrevEnd === null) {
                         //Если уроки не начались
-                        console.log('уроки не начались')
+                        //console.log('уроки не начались')
                         this.renderBreakBody(0)
                     } else if (current >= start && current <= end) {
                         button.classList.add('active')
@@ -208,15 +208,14 @@ class RenderFunction {
                     } else if (nextStart === null && current >= end) {
                         // Если уроки кончены
                         this.renderEndLessonBody()
-                    } else if(nextStart === '') {
-                        const ringPreviewEnd = (i < items.length - 1 && items[i - 1]) ? items[i - 1][1].ring_end : ''
-                        const previewEnd = (ringPreviewEnd) && new Date(`${this.#radioCheckedDate}T${ringPreviewEnd}`)
-                        // console.log(ringPreviewEnd, current >= previewEnd)
-                        if(current >= previewEnd){
-                            //Если уроки без метки времени в журнале
+                    } else if(nextStart === '' && current >= prevEnd) {
+                            //Если уроки без метки времени в журнале после урока со временем
                             this.renderBreakBody(Number(index))
                             this.renderNoTime()
-                        }
+                    } else if(ringStart === '' && ringEnd === '' && !ringNextStart && !ringPrevEnd) {
+                        // Нет времени текущего у предыдущего и последующего
+                        // console.log('Нет времени текущего у предыдущего и последующего')
+                        this.renderNoLessonsTime()
                     }
 
                     button.addEventListener("click", this.clickTimeHandler.bind(this))
@@ -355,6 +354,27 @@ class RenderFunction {
         cardText.appendChild(lessonTitle)
 
         lessonTitle.textContent = `Уроки по журналу не обнаружены`
+
+        lessonsCard.appendChild(card)
+    }
+
+    renderNoLessonsTime() {
+        const lessonsCard = document.querySelector('.lessons-card')
+        lessonsCard.innerHTML = ''
+
+        const card = document.createElement('div')
+        card.classList.add('card-header')
+
+
+        const cardText = document.createElement('div')
+        cardText.classList.add('card-text', 'text-center')
+        card.appendChild(cardText)
+
+        const lessonTitle = document.createElement('h3')
+        lessonTitle.classList.add('lesson')
+        cardText.appendChild(lessonTitle)
+
+        lessonTitle.textContent = `Не обнаружены либо не определены в журнале время у предыдущего, текущего, последующего уроков. Обновите журнал или взаимодействуйте в ручном режиме!`
 
         lessonsCard.appendChild(card)
     }
