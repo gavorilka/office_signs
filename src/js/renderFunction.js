@@ -18,18 +18,27 @@ class RenderFunction {
         { shortName: "Сб", name: "Суббота", key: 6 },
         { shortName: "Вс", name: "Воскресенье", key: 0 }
     ]
-     constructor() {
+    #alternativeMessage;
+    constructor() {
         this.#url = new URL(window.location)
         this.#building = this.#chooseBuilding()
-        if(this.#building){
+        this.#room = this.#building ? this.#url.searchParams.get(this.#building): undefined
+        this.#alternativeMessage = import.meta.env.VITE_ALTERNATIVE_MESSAGE || null
+        if(this.#building && this.#alternativeMessage && this.#checkAlternativeDate() && this.#checkAlternativeCabinet()) {
+            //console.log(import.meta.env.VITE_ALTERNATIVE_MESSAGE)
+            //console.log(this.#checkAlternativeDate())
+            this.renderAlternativeView()
+        } else if(this.#building){
+            //this.renderAfterAlternativeView()
             this.#currentDate = new Date()
             this.#currentNumberDay = this.#currentDate.getDay()
             this.#currentTime = new Date().toLocaleTimeString('en-RU', {timeZone: 'Europe/Moscow', hour12: false})
-            this.#room = this.#building ? this.#url.searchParams.get(this.#building): undefined
             this.#serverQuery().then(()=> {
                 this.renderDate()
                 this.renderCabinet()
                 this.renderRadioGroup()
+            }).catch(()=>{
+                this.renderEmptyBody()
             })
         } else {
             this.renderEmptyUrlParam()
@@ -45,7 +54,7 @@ class RenderFunction {
             const response = await fetch(`${import.meta.env.VITE_API_SERVER}/?building=${this.#building}&room=${this.#room}`)
             const data = await response.json()
             const result = data.response
-            if(result.state == 200) {
+            if(result.state === 200) {
                 this.#data = result.result
                 return this.#data
             }
@@ -75,11 +84,60 @@ class RenderFunction {
         return `${year}-${month}-${day}`
     }
 
+    #checkAlternativeDate() {
+        if(import.meta.env.VITE_ALTERNATIVE_DATE_LIST) {
+            try {
+                const datesArray = JSON.parse(import.meta.env.VITE_ALTERNATIVE_DATE_LIST)
+                const currentDate = new Date()
+                currentDate.setHours(0, 0, 0, 0)
+                const normalizedDates = datesArray.map(date => {
+                    const normalizedDate = new Date(date);
+                    // Проверяем, является ли дата корректной
+                    if (isNaN(normalizedDate.getTime())) {
+                        console.warn(`Некорректная дата: ${date}`)
+                        return null; // Возвращаем null для некорректных дат
+                    }
+                    normalizedDate.setHours(0, 0, 0, 0); // Обнуляем время
+                    return normalizedDate;
+                }).filter(date => date !== null) // Убираем некорректные даты
+                //console.log('нормализованные даты: ', normalizedDates)
+
+                return normalizedDates.some(date => date.getTime() === currentDate.getTime());
+            } catch (error) {
+             return false
+            }
+        } else {
+            return false
+        }
+    }
+
+    #checkAlternativeCabinet() {
+        if(import.meta.env.VITE_ALTERNATIVE_CABINET_LIST) {
+            try{
+                const cabinetArray = JSON.parse(import.meta.env.VITE_ALTERNATIVE_CABINET_LIST)
+                const currentCabinet = { building: this.#building, room: +this.#room };
+                const isCabinetIncluded = cabinetArray.some(cabinet =>
+                    cabinet.building === currentCabinet.building && cabinet.room === currentCabinet.room
+                )
+                if(cabinetArray.length > 0 && isCabinetIncluded) {
+                    console.log(`in list`)
+                    return true
+                } else {
+                    console.log(`no list`)
+                    return false
+                }
+            } catch (e) {
+                return false
+            }
+        } else {
+            return true
+        }
+    }
+
     convertTimeToHHMM(time) {
         if(time){
             const [hours, minutes] = time.split(':')
-            const formattedTime = `${hours}:${minutes}`
-            return formattedTime
+            return `${hours}:${minutes}`
         } else {
             return ''
         }
@@ -166,7 +224,7 @@ class RenderFunction {
         }
         if(this.#data.days[this.#radioCheckedDate]){
             const items = Object.entries(this.#data.days[this.#radioCheckedDate].items)
-            if(items.length == 0){
+            if(items.length === 0){
                 //Если массив уроков пуст
                 this.renderEmptyBody()
             } else {
@@ -456,7 +514,57 @@ class RenderFunction {
         chooseDate.textContent = `недоступно`
         cabinet.textContent =`Кабинет не найден`
     }
+
+    renderAlternativeView() {
+        const mainBlock = document.querySelector('main')
+        mainBlock.classList.add('alternative-main')
+        //console.log(mainBlock)
+        mainBlock.innerHTML = `
+          <h1 class="mt-2 card-title cabinet text-center">Кабинет №${this.#room}</h1>
+          <div class="row mt-5 align-items-center">
+              <div class="col-4">
+                  <img src="/Crop_logoRedLion.svg" class="img-fluid" alt="Лицей №369">
+              </div>
+              <div class="col-8 text-center">
+                  <h2>${this.#alternativeMessage}</h2>
+              </div>
+          </div>
+        `
+    }
+
+    renderAfterAlternativeView() {
+        const mainBlock = document.querySelector('main')
+        if (mainBlock.classList.contains('alternative-main')) {
+            mainBlock.classList.remove('alternative-main')
+            mainBlock.innerHTML = `
+                <div class='col-sm-4'>
+                    <h5 class="text-center">
+                        Расписание уроков
+                    </h5>
+                    <h5 class="text-center mb-4 choose-date">
+                    </h5>
+                    <div class="btn-group mb-4 choose-day" role="group" aria-label="Выбор дня">
+                    </div>
+                    <div class="choose-time list-group">
+                    </div>
+                </div>
+                <div class='col-sm-8'>
+                    <div class="card container-fluid mb-2">
+                        <div class="card-body d-flex align-items-center">
+                            <h1 class="cabinet"></h1>
+                            <div class="ms-auto logo-block">
+                                <img src="/logoBlue.svg" class="img-fluid" alt="Лицей 369">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card lessons-card">
+                    </div>
+                </div>
+            `
+        }
+    }
 }
-const renderFunction = new RenderFunction()
+
+new RenderFunction()
 
 

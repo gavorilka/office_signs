@@ -47,6 +47,14 @@ h3 {
   width: calc(3rem + 5vw);
   height: auto
 }
+.alternative-main {
+  h1 {
+    font-size: calc(6rem + 1.5vw)
+  }
+  h2 {
+    font-size: calc(2.5rem + 1.5vw)
+  }
+}
 @media (max-width: 991px) {
   body{
     font: 0.75rem/1.5 var(--bs-font-sans-serif);
