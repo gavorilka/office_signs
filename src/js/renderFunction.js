@@ -523,7 +523,7 @@ class RenderFunction {
           <h1 class="mt-2 card-title cabinet text-center">Кабинет №${this.#room}</h1>
           <div class="row mt-5 align-items-center">
               <div class="col-4">
-                  <img src="/Crop_logoRedLion.svg" class="img-fluid" alt="Лицей №369">
+                  <img src="${import.meta.env.VITE_ALTERNATIVE_IMG}" class="img-fluid" alt="Лицей №369">
               </div>
               <div class="col-8 text-center">
                   <h2>${this.#alternativeMessage}</h2>
